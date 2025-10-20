@@ -33,8 +33,6 @@ public class DedicatedStorageQOL : BaseUnityPlugin
 
         Logger.LogInfo("DedicatedStorageQOL loaded successfully!");
 
-        // Start GitHub update check
-        _ = CheckForUpdates();
     }
 
     private void Update()
@@ -134,50 +132,4 @@ public class DedicatedStorageQOL : BaseUnityPlugin
         player.Message(MessageHud.MessageType.Center, "");
     }
 
-    private async Task CheckForUpdates()
-    {
-        try
-        {
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("ValheimModUpdater");
-
-                string url = $"https://api.github.com/repos/{GitHubOwner}/{GitHubRepo}/releases/latest";
-                var response = await client.GetStringAsync(url);
-
-                // Parse JSON using Newtonsoft.Json
-                var jsonObj = JObject.Parse(response);
-                var latestVersion = jsonObj["tag_name"].ToString();
-                var asset = jsonObj["assets"][0];
-                var downloadUrl = asset["browser_download_url"].ToString();
-
-                if (Version.TryParse(latestVersion.TrimStart('v'), out Version latest) &&
-                    Version.TryParse(this.Info.Metadata.Version.ToString(), out Version current))
-                {
-                    if (latest > current)
-                    {
-                        Logger.LogInfo($"New version {latest} detected! Downloading update...");
-
-                        var dllData = await client.GetByteArrayAsync(downloadUrl);
-
-                        string pluginPath = Path.Combine(Paths.BepInExRootPath, "plugins", this.Info.Metadata.Name + ".dll");
-                        string backupPath = pluginPath + ".bak";
-
-                        if (File.Exists(backupPath))
-                            File.Delete(backupPath);
-
-                        if (File.Exists(pluginPath))
-                            File.Move(pluginPath, backupPath);
-
-                        File.WriteAllBytes(pluginPath, dllData);
-                        Logger.LogInfo("DedicatedStorageQOL updated! Restart the game to apply changes.");
-                    }
-                }
-            }
-        }
-        catch (System.Exception ex)
-        {
-            Logger.LogWarning($"Failed to check for updates: {ex.Message}");
-        }
-    }
 }
