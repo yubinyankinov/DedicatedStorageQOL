@@ -10,7 +10,7 @@ using System.IO;
 using System;
 using Newtonsoft.Json.Linq;
 
-[BepInPlugin("YubinYankinov.DedicatedStorageQOL", "DedicatedStorageQOL", "1.0.2")]
+[BepInPlugin("YubinYankinov.DedicatedStorageQOL", "DedicatedStorageQOL", "1.0.3")]
 public class DedicatedStorageQOL : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
